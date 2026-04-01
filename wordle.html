@@ -13,149 +13,126 @@
   --border:rgba(255,255,255,0.07);--border-h:rgba(255,255,255,0.14);
   --text:#f0ece3;--muted:#777;--hint:#444;
   --teal:#4cafa0;--teal-d:rgba(76,175,160,0.15);
-  --amber:#c9a55a;--amber-d:rgba(201,165,90,0.12);
+  --amber:#c9a55a;
   --correct:#4cafa0;--present:#c9a55a;--absent:#2a2a32;
-  --correct-border:#4cafa0;--present-border:#c9a55a;--absent-border:#3a3a44;
+  --correct-b:#4cafa0;--present-b:#c9a55a;--absent-b:#3a3a44;
   --r:10px;--rs:7px;
 }
-html{scroll-behavior:smooth;}
 body{
   font-family:'Outfit',sans-serif;background:var(--ink);color:var(--text);
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
   padding:0 16px 60px;
   background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(76,175,160,0.04) 0%,transparent 60%);
 }
-
-/* HEADER */
 .header{
   width:100%;max-width:500px;
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 0 16px;border-bottom:0.5px solid var(--border);
-  margin-bottom:32px;
+  padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:28px;
 }
-.back{
-  font-size:12px;color:var(--hint);text-decoration:none;
-  display:flex;align-items:center;gap:6px;
-  transition:color .2s;
-}
+.back{font-size:12px;color:var(--hint);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
 .back:hover{color:var(--text);}
-.logo{
-  font-family:'Cormorant Garamond',serif;
-  font-size:22px;font-weight:600;letter-spacing:0.06em;color:var(--text);
-}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;letter-spacing:0.06em;}
 .logo em{font-style:italic;color:var(--teal);}
 .header-right{font-size:11px;color:var(--hint);}
 
-/* MESSAGE */
 .msg-bar{
-  height:28px;font-size:13px;font-weight:500;color:var(--text);
-  text-align:center;margin-bottom:16px;letter-spacing:0.04em;
-  transition:opacity .3s;
+  height:26px;font-size:13px;font-weight:500;color:var(--text);
+  text-align:center;margin-bottom:14px;letter-spacing:0.04em;
 }
 
 /* GRID */
-.grid{
-  display:grid;grid-template-rows:repeat(6,1fr);gap:6px;
-  margin-bottom:28px;
-}
-.row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.grid{display:flex;flex-direction:column;gap:6px;margin-bottom:24px;}
+.row{display:flex;gap:6px;}
 .tile{
   width:58px;height:58px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Outfit',sans-serif;font-size:22px;font-weight:500;
-  text-transform:uppercase;
-  border:0.5px solid var(--border);
-  border-radius:var(--rs);
-  background:var(--ink2);
-  color:var(--text);
-  transition:border-color .1s,transform .1s;
+  font-size:22px;font-weight:500;text-transform:uppercase;
+  border:0.5px solid var(--border);border-radius:var(--rs);
+  background:var(--ink2);color:var(--text);
   user-select:none;
+  transition:border-color .1s;
 }
-.tile.filled{border-color:var(--border-h);animation:pop .1s ease;}
-@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+.tile.active{border-color:var(--border-h);}
 
-.tile.correct{background:var(--correct);border-color:var(--correct-border);color:#fff;}
-.tile.present{background:var(--present);border-color:var(--present-border);color:#1a1206;}
-.tile.absent{background:var(--absent);border-color:var(--absent-border);color:var(--muted);}
+/* colour states applied after reveal */
+.tile.correct{background:var(--correct);border-color:var(--correct-b);color:#fff;}
+.tile.present{background:var(--present);border-color:var(--present-b);color:#1a1206;}
+.tile.absent {background:var(--absent); border-color:var(--absent-b); color:var(--muted);}
 
-.tile.flip{animation:flip .5s ease forwards;}
-@keyframes flip{
-  0%{transform:rotateX(0)}
-  50%{transform:rotateX(-90deg);background:var(--ink3);}
-  100%{transform:rotateX(0)}
-}
-.tile.shake{animation:shake .4s ease;}
-@keyframes shake{
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-6px)}
-  40%{transform:translateX(6px)}
-  60%{transform:translateX(-4px)}
-  80%{transform:translateX(4px)}
-}
+/* pop when letter typed */
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.tile.pop{animation:pop .1s ease;}
+
+/* flip reveal */
+@keyframes flipIn {0%{transform:rotateX(0deg)}100%{transform:rotateX(-90deg)}}
+@keyframes flipOut{0%{transform:rotateX(-90deg)}100%{transform:rotateX(0deg)}}
+.tile.flip-in {animation:flipIn  .2s ease forwards;}
+.tile.flip-out{animation:flipOut .2s ease forwards;}
+
+/* shake on invalid */
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.tile.shake{animation:shake .35s ease;}
+
+/* bounce on win */
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.tile.bounce{animation:bounce .4s ease;}
+
+/* LEGEND */
+.legend{display:flex;gap:16px;justify-content:center;margin-bottom:20px;font-size:11px;color:var(--hint);}
+.leg{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:10px;height:10px;border-radius:2px;}
+.dot-c{background:var(--correct);}
+.dot-p{background:var(--present);}
+.dot-a{background:var(--absent);border:0.5px solid var(--absent-b);}
 
 /* KEYBOARD */
 .keyboard{display:flex;flex-direction:column;gap:7px;width:100%;max-width:500px;}
 .kb-row{display:flex;justify-content:center;gap:5px;}
 .key{
-  height:52px;min-width:36px;padding:0 8px;
+  height:52px;min-width:36px;padding:0 6px;flex:1;max-width:42px;
   border-radius:var(--rs);border:0.5px solid var(--border);
   background:var(--ink3);color:var(--text);
   font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  text-transform:uppercase;letter-spacing:0.04em;
-  transition:background .2s,border-color .2s,transform .1s;
-  user-select:none;flex:1;max-width:42px;
+  text-transform:uppercase;
+  transition:background .15s,border-color .15s,transform .1s;
+  user-select:none;
 }
 .key:hover{border-color:var(--border-h);background:var(--ink4);}
 .key:active{transform:scale(0.95);}
-.key.wide{min-width:56px;max-width:64px;font-size:11px;}
-.key.correct{background:var(--correct);border-color:var(--correct);color:#fff;}
-.key.present{background:var(--present);border-color:var(--present);color:#1a1206;}
-.key.absent{background:var(--absent);border-color:var(--absent-border);color:var(--hint);}
+.key.wide{min-width:58px;max-width:66px;font-size:11px;}
+.key.correct{background:var(--correct);border-color:var(--correct-b);color:#fff;}
+.key.present{background:var(--present);border-color:var(--present-b);color:#1a1206;}
+.key.absent {background:var(--absent); border-color:var(--absent-b); color:var(--hint);}
 
-/* END CARD */
-.end-card{
+/* END OVERLAY */
+.overlay{
   position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(13,13,15,0.85);backdrop-filter:blur(6px);
-  z-index:100;animation:fadeIn .3s ease;display:none;
+  background:rgba(13,13,15,0.88);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;
 }
+.overlay.show{display:flex;animation:fadeIn .3s ease;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .end-inner{
   background:var(--ink2);border:0.5px solid var(--border-h);
   border-radius:14px;padding:36px 32px;text-align:center;
-  max-width:340px;width:90%;
+  max-width:320px;width:90%;
 }
-.end-emoji{font-size:42px;margin-bottom:14px;display:block;}
-.end-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.8rem;font-weight:600;margin-bottom:8px;
-}
-.end-word{
-  font-size:14px;color:var(--muted);margin-bottom:6px;
-}
-.end-word strong{color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;}
-.end-sub{font-size:13px;color:var(--hint);margin-bottom:28px;line-height:1.6;}
+.end-emoji{font-size:44px;margin-bottom:14px;display:block;}
+.end-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;margin-bottom:10px;}
+.end-meta{font-size:14px;color:var(--muted);margin-bottom:6px;line-height:1.6;}
+.end-meta strong{color:var(--teal);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
+.end-sub{font-size:13px;color:var(--hint);margin-bottom:26px;}
 .btn-play{
   width:100%;padding:13px;background:var(--teal);border:none;
-  border-radius:var(--rs);color:#fff;font-family:'Outfit',sans-serif;
-  font-size:14px;font-weight:500;cursor:pointer;
-  transition:opacity .2s;letter-spacing:0.02em;
+  border-radius:var(--rs);color:#fff;
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;
+  cursor:pointer;transition:opacity .2s;
 }
 .btn-play:hover{opacity:.82;}
 
-/* LEGEND */
-.legend{
-  display:flex;gap:16px;justify-content:center;align-items:center;
-  margin-bottom:20px;font-size:11px;color:var(--hint);
-}
-.leg{display:flex;align-items:center;gap:5px;}
-.leg-dot{width:10px;height:10px;border-radius:2px;}
-.dot-correct{background:var(--correct);}
-.dot-present{background:var(--present);}
-.dot-absent{background:var(--absent);border:0.5px solid var(--absent-border);}
-
-@media(max-width:400px){
+@media(max-width:380px){
   .tile{width:48px;height:48px;font-size:18px;}
   .key{height:46px;font-size:12px;}
 }
@@ -170,13 +147,12 @@ body{
 </div>
 
 <div class="msg-bar" id="msgBar"></div>
-
 <div class="grid" id="grid"></div>
 
 <div class="legend">
-  <div class="leg"><div class="leg-dot dot-correct"></div>Correct spot</div>
-  <div class="leg"><div class="leg-dot dot-present"></div>Wrong spot</div>
-  <div class="leg"><div class="leg-dot dot-absent"></div>Not in word</div>
+  <div class="leg"><div class="leg-dot dot-c"></div>Correct spot</div>
+  <div class="leg"><div class="leg-dot dot-p"></div>Wrong spot</div>
+  <div class="leg"><div class="leg-dot dot-a"></div>Not in word</div>
 </div>
 
 <div class="keyboard" id="keyboard">
@@ -185,12 +161,12 @@ body{
   <div class="kb-row" id="row2"></div>
 </div>
 
-<div class="end-card" id="endCard">
+<div class="overlay" id="overlay">
   <div class="end-inner">
     <span class="end-emoji" id="endEmoji">🎉</span>
     <p class="end-title" id="endTitle">Brilliant!</p>
-    <p class="end-word">The word was <strong id="endWord"></strong></p>
-    <p class="end-sub" id="endSub">You got it in 3 tries.</p>
+    <p class="end-meta" id="endMeta">The word was <strong id="endWord"></strong></p>
+    <p class="end-sub"  id="endSub">You got it in 3 tries.</p>
     <button class="btn-play" onclick="initGame()">Play again →</button>
   </div>
 </div>
@@ -199,50 +175,76 @@ body{
 const WORDS = [
   'CRANE','SLATE','AUDIO','PLANT','QUICK','BRINE','FLAME','GROVE','HASTE','IVORY',
   'JAZZY','KNACK','LEMON','MERIT','NOBLE','OCEAN','PRISM','QUIRK','RAPID','SNOWY',
-  'TROVE','ULTRA','VIVID','WHEAT','PROXY','YIELD','ZONAL','BLAZE','CRISP','DWARF',
-  'EXPEL','FLAIR','GLOOM','HOVER','INFER','JOUST','KAYAK','LUNGE','MIXED','NOVEL',
-  'OXIDE','PLUME','QUAFF','RAVEN','SHALE','TORCH','UMBER','VAPOR','WALTZ','XENON',
-  'ABBEY','BRAWL','CHASM','DRIFT','ELBOW','FETCH','GRAZE','HATCH','IGLOO','JUMPY',
-  'KNELT','LUSTY','MINOR','NINTH','OBESE','PERCH','QUEST','ROVER','SWAMP','TABBY',
-  'USHER','VAGUE','WORDY','EXACT','YACHT','ZEBRA','ALBUM','BENCH','CIVIC','DELTA',
-  'EMBER','FANCY','GLINT','HUNKY','INLET','JOKER','KNAVE','LARVA','MOCHA','NYMPH',
-  'ONSET','PLAID','RHYME','SINEW','TIDAL','UNFIT','VALID','WRUNG','ZESTY','BRISK',
-  'CHANT','DEPOT','EPOXY','FROND','GUILE','HAIKU','IRONY','JULEP','KINKY','LYRIC',
-  'MAXIM','NOTCH','OVARY','PIXEL','RAYON','SCONE','TAPIR','UNWED','VIGOR','WITTY',
-  'AXIOM','BARON','CLEFT','DECOY','ENNUI','FLINT','GRUFF','HIPPO','INEPT','JELLY'
+  'TROVE','ULTRA','VIVID','WHEAT','PROXY','YIELD','BLAZE','CRISP','DWARF','EXPEL',
+  'FLAIR','GLOOM','HOVER','INFER','JOUST','KAYAK','LUNGE','MIXED','NOVEL','OXIDE',
+  'PLUME','RAVEN','SHALE','TORCH','UMBER','VAPOR','WALTZ','ABBEY','BRAWL','CHASM',
+  'DRIFT','ELBOW','FETCH','GRAZE','HATCH','IGLOO','JUMPY','KNELT','MINOR','NINTH',
+  'PERCH','QUEST','ROVER','SWAMP','TABBY','USHER','VAGUE','WORDY','EXACT','YACHT',
+  'ZEBRA','BENCH','CIVIC','DELTA','EMBER','FANCY','GLINT','INLET','JOKER','LARVA',
+  'MOCHA','NYMPH','ONSET','PLAID','RHYME','SINEW','TIDAL','UNFIT','VALID','BRISK',
+  'CHANT','EPOXY','FROND','GUILE','HAIKU','IRONY','JULEP','LYRIC','MAXIM','NOTCH',
+  'PIXEL','RAYON','SCONE','TAPIR','VIGOR','WITTY','AXIOM','BARON','CLEFT','DECOY',
+  'ENNUI','FLINT','GRUFF','HIPPO','INEPT','JELLY','KNAVE','LUSTY','ALBUM','DEPOT'
 ];
 
 const VALID = new Set([...WORDS,
   'ABOUT','ABOVE','ABUSE','ACTOR','ACUTE','ADMIT','ADOPT','ADULT','AFTER','AGAIN',
-  'AGENT','AGREE','AHEAD','ALARM','ALBUM','ALERT','ALIKE','ALIGN','ALLEY','ALLOT',
-  'ALLOW','ALONE','ALONG','ALOOF','ALTER','ANGEL','ANGER','ANGLE','ANGRY','ANIME',
-  'ANNEX','ANTIC','ANVIL','APART','APHID','APPLE','APPLY','APTLY','ARDOR','ARENA',
-  'ARGUE','ARISE','ARRAY','ASIDE','ASSET','ATONE','ATTIC','AVAIL','AVOID','AWAKE',
-  'AWARD','AWARE','BADLY','BAKER','BASES','BASIC','BASIS','BASIS','BEACH','BELLE',
-  'BELOW','BERTH','BIRTH','BISON','BLADE','BLAND','BLANK','BLEND','BLESS','BLIND',
-  'BLOCK','BLOOD','BLOWN','BOARD','BOOST','BOUND','BRACE','BRAIN','BRAND','BRAVE',
-  'BREAD','BREAK','BREED','BRICK','BRIDE','BRIEF','BRING','BROAD','BROKE','BROOK',
-  'BROWN','BRUSH','BUILD','BUILT','BUNCH','BURNS','BURST','BUYER','CABIN','CANNY',
-  'CARGO','CARRY','CATCH','CAUSE','CEASE','CHAIN','CHAIR','CHALK','CHAOS','CHARM',
-  'CHART','CHASE','CHEAP','CHEEK','CHEER','CHIEF','CHILD','CHINA','CHORD','CHOSE',
-  'CHUNK','CIRCA','CIVIL','CLAIM','CLASS','CLEAN','CLEAR','CLERK','CLICK','CLIFF',
-  'CLIMB','CLING','CLOCK','CLONE','CLOSE','CLOTH','CLOUD','COACH','COAST','COMET',
-  'COMMA','CORAL','COUCH','COULD','COUNT','COURT','COVER','CRACK','CRAFT','CRASH',
-  'CRAZY','CREAM','CREEK','CRIME','CROSS','CROWD','CROWN','CRUEL','CRUSH','CRUST',
-  'CURVE','CYCLE','DAILY','DANCE','DATED','DATUM','DEALT','DEATH','DEBUT','DECAL',
-  'DECOR','DEFER','DELAY','DENSE','DEPOT','DEPTH','DERBY','DIGIT','DIRTY','DISCO',
-  'DITCH','DODGE','DOING','DOMED','DOUBT','DOUGH','DOWRY','DRAFT','DRAIN','DRAMA',
-  'DRANK','DRAWN','DREAD','DREAM','DRESS','DRIFT','DRINK','DRIVE','DRONE','DROVE',
-  'DRUNK','DRYER','DUNCE','DUSTY','DYING','EAGLE','EARLY','EARTH','EIGHT','ELITE',
-  'EMPTY','ENDED','ENEMY','ENJOY','ENTER','ENTRY','EQUAL','ERROR','ESSAY','EVADE',
-  'EVENT','EVERY','EXACT','EXERT','EXIST','EXTRA','FABLE','FACED','FACTO','FAILS',
-  'FAINT','FAITH','FALSE','FAMED','FATAL','FAULT','FEAST','FERAL','FETUS','FEVER',
-  'FIELD','FIEND','FIFTH','FIFTY','FIGHT','FINAL','FIRST','FIXED','FLOOD','FLOOR',
-  'FOCUS','FORAY','FORCE','FORGE','FORGO','FORTH','FOUND','FRAME','FRANK','FRAUD',
-  'FRESH','FRONT','FROST','FROTH','FROZE','FULLY','FUNGI','FUNNY','FUZZY','GIVEN',
-  'GLAND','GLASS','GLOSS','GLYPH','GOING','GRACE','GRADE','GRAFT','GRAIN','GRAND',
-  'GRANT','GRASP','GRASS','GREAT','GREEN','GREET','GRIEF','GRILL','GRIND','GROAN',
-  'GROSS','GROUT','GUARD','GUESS','GUEST','GUIDE','GUILD','GUILT','GUISE','GUMMY'
+  'AGENT','AGREE','AHEAD','ALARM','ALERT','ALIKE','ALIGN','ALLEY','ALLOW','ALONE',
+  'ALONG','ALOOF','ALTER','ANGEL','ANGER','ANGLE','ANGRY','ANNEX','APART','APPLE',
+  'APPLY','ARENA','ARGUE','ARISE','ARRAY','ASIDE','ASSET','ATONE','ATTIC','AVOID',
+  'AWAKE','AWARD','AWARE','BADLY','BEACH','BELOW','BIRTH','BISON','BLADE','BLAND',
+  'BLANK','BLEND','BLESS','BLIND','BLOCK','BLOOD','BOARD','BOOST','BOUND','BRACE',
+  'BRAIN','BRAND','BRAVE','BREAD','BREAK','BREED','BRICK','BRIDE','BRIEF','BRING',
+  'BROAD','BROKE','BROOK','BROWN','BRUSH','BUILD','BUILT','BUNCH','BURST','BUYER',
+  'CABIN','CARRY','CATCH','CAUSE','CHAIN','CHAIR','CHALK','CHAOS','CHARM','CHART',
+  'CHASE','CHEAP','CHEEK','CHEER','CHIEF','CHILD','CHINA','CHORD','CHUNK','CIVIL',
+  'CLAIM','CLASS','CLEAN','CLEAR','CLERK','CLICK','CLIFF','CLIMB','CLING','CLOCK',
+  'CLONE','CLOSE','CLOTH','CLOUD','COACH','COAST','COULD','COUNT','COURT','COVER',
+  'CRACK','CRAFT','CRASH','CRAZY','CREAM','CREEK','CRIME','CROSS','CROWD','CROWN',
+  'CRUEL','CRUSH','CRUST','CURVE','CYCLE','DAILY','DANCE','DEALT','DEATH','DELAY',
+  'DENSE','DEPTH','DIGIT','DIRTY','DOUBT','DRAFT','DRAIN','DRAMA','DRANK','DRAWN',
+  'DREAD','DREAM','DRESS','DRINK','DRIVE','DRONE','DROVE','DRUNK','DUSTY','DYING',
+  'EAGLE','EARLY','EARTH','EIGHT','ELITE','EMPTY','ENEMY','ENJOY','ENTER','ENTRY',
+  'EQUAL','ERROR','ESSAY','EVENT','EVERY','EXERT','EXIST','EXTRA','FAINT','FAITH',
+  'FALSE','FATAL','FAULT','FEAST','FEVER','FIELD','FIFTH','FIFTY','FIGHT','FINAL',
+  'FIRST','FIXED','FLOOD','FLOOR','FOCUS','FORCE','FORGE','FORTH','FOUND','FRAME',
+  'FRANK','FRAUD','FRESH','FRONT','FROST','FROZE','FULLY','FUNNY','FUZZY','GIVEN',
+  'GLASS','GOING','GRACE','GRADE','GRAIN','GRAND','GRANT','GRASP','GRASS','GREAT',
+  'GREEN','GREET','GRIEF','GRILL','GRIND','GROAN','GROSS','GUARD','GUESS','GUEST',
+  'GUIDE','GUILD','GUILT','HAPPY','HEART','HEAVY','HELLO','HENCE','HORSE','HOTEL',
+  'HOUSE','HUMAN','HUMOR','IDEAL','IMAGE','INNER','INPUT','ISSUE','JUDGE','JUICE',
+  'JUICY','KEEPS','KNIFE','KNOCK','KNOWN','LARGE','LASER','LATER','LAUGH','LAYER',
+  'LEARN','LEAST','LEAVE','LEGAL','LEVEL','LIGHT','LIMIT','LINEN','LOCAL','LOGIC',
+  'LOOSE','LOVER','LOWER','LUCKY','LUNCH','MAGIC','MATCH','MEDIA','MIGHT','MODAL',
+  'MODEL','MONEY','MONTH','MORAL','MOTOR','MOUNT','MOUSE','MOUTH','MOVED','MOVIE',
+  'MUSIC','NAIVE','NERVE','NEVER','NIGHT','NOISE','NORTH','NOTED','NURSE','OCCUR',
+  'OFFER','OFTEN','ORDER','OTHER','OUGHT','OUTER','OWNER','PAINT','PANEL','PAPER',
+  'PATCH','PAUSE','PEACE','PHASE','PHONE','PHOTO','PIANO','PIECE','PILOT','PITCH',
+  'PLACE','PLAIN','PLANE','PLATE','PLAZA','POINT','POLAR','POWER','PRESS','PRICE',
+  'PRIDE','PRIME','PRINT','PRIOR','PRIZE','PROBE','PROOF','PROSE','PROUD','PROVE',
+  'QUEEN','QUITE','QUOTA','QUOTE','RADAR','RADIO','RAISE','RANGE','REACH','READY',
+  'REALM','REBEL','REFER','REIGN','RELAX','REMIT','RENAL','REPAY','REPEL','REPOT',
+  'RIDER','RIFLE','RIGHT','RIGID','RISKY','RIVAL','RIVER','ROCKY','ROMAN','ROUND',
+  'ROYAL','RULED','RULER','RURAL','SAINT','SALAD','SAUCE','SCALE','SCENE','SCORE',
+  'SENSE','SERVE','SEVEN','SHADE','SHAKE','SHALL','SHAME','SHAPE','SHARE','SHARP',
+  'SHELF','SHELL','SHIFT','SHINE','SHIRT','SHOCK','SHORE','SHORT','SHOUT','SHOWN',
+  'SIGHT','SINCE','SIXTH','SIXTY','SIZED','SKILL','SLAVE','SLEEP','SLICE','SLIDE',
+  'SLOPE','SMART','SMELL','SMILE','SMOKE','SOLVE','SORRY','SOUTH','SPACE','SPARE',
+  'SPEAK','SPEED','SPEND','SPENT','SPICE','SPILL','SPINE','SPITE','SPLIT','SPOKE',
+  'SPOON','SPORT','SPRAY','SQUAD','STACK','STAFF','STAGE','STAIN','STAIR','STAKE',
+  'STALE','STALL','STAMP','STAND','START','STATE','STAYS','STEAM','STEEL','STEEP',
+  'STEER','STERN','STICK','STIFF','STILL','STOCK','STONE','STOOD','STORE','STORM',
+  'STORY','STOVE','STRIP','STUCK','STUDY','STYLE','SUGAR','SUITE','SUPER','SURGE',
+  'SWEAR','SWEEP','SWEET','SWEPT','SWIFT','SWORE','SWORN','TABLE','TASTE','TEACH',
+  'TEETH','THANK','THEFT','THEIR','THEME','THICK','THING','THINK','THIRD','THOSE',
+  'THREE','THREW','THROW','THUMB','TIMER','TIRED','TITLE','TODAY','TOKEN','TOPIC',
+  'TOTAL','TOUCH','TOUGH','TOWER','TOWEL','TRACK','TRADE','TRAIL','TRAIN','TRAIT',
+  'TRASH','TREAT','TREND','TRIAL','TRIBE','TRICK','TRIED','TRUST','TRUTH','TUMOR',
+  'TWICE','TWIST','UNIFY','UNION','UNITY','UNTIL','UPPER','UPSET','URBAN','USAGE',
+  'USUAL','VALVE','VALUE','VERSE','VIDEO','VISIT','VOICE','VOTER','WASTE','WATCH',
+  'WATER','WEARY','WEIGH','WHERE','WHICH','WHILE','WHITE','WHOLE','WHOSE','WIDER',
+  'WOMAN','WOMEN','WORLD','WORRY','WORSE','WORST','WORTH','WOULD','WOUND','WRATH',
+  'WRITE','WRONG','WROTE','YIELD','YOUNG','YOURS','YOUTH','ZONES'
 ]);
 
 const KB = [
@@ -251,17 +253,18 @@ const KB = [
   ['ENTER','Z','X','C','V','B','N','M','⌫']
 ];
 
-let target, currentRow, currentCol, board, keyState, gameOver;
+let target, curRow, curCol, board, keyState, gameOver, animating;
 
 function initGame() {
-  target = WORDS[Math.floor(Math.random() * WORDS.length)];
-  currentRow = 0; currentCol = 0;
-  board = Array.from({length:6}, () => Array(5).fill(''));
+  target   = WORDS[Math.floor(Math.random() * WORDS.length)];
+  curRow   = 0; curCol = 0;
+  board    = Array.from({length:6}, () => Array(5).fill(''));
   keyState = {};
-  gameOver = false;
-  document.getElementById('endCard').style.display = 'none';
+  gameOver = false; animating = false;
+  document.getElementById('overlay').classList.remove('show');
   document.getElementById('msgBar').textContent = '';
-  buildGrid(); buildKeyboard();
+  buildGrid();
+  buildKeyboard();
 }
 
 function buildGrid() {
@@ -272,7 +275,7 @@ function buildGrid() {
     row.className = 'row'; row.id = 'r' + r;
     for (let c = 0; c < 5; c++) {
       const t = document.createElement('div');
-      t.className = 'tile'; t.id = `t${r}${c}`;
+      t.className = 'tile'; t.id = 't' + r + c;
       row.appendChild(t);
     }
     g.appendChild(row);
@@ -280,129 +283,171 @@ function buildGrid() {
 }
 
 function buildKeyboard() {
-  KB.forEach((row, i) => {
-    const el = document.getElementById('row' + i);
-    el.innerHTML = '';
-    row.forEach(k => {
+  KB.forEach((keys, i) => {
+    const row = document.getElementById('row' + i);
+    row.innerHTML = '';
+    keys.forEach(k => {
       const btn = document.createElement('button');
       btn.className = 'key' + (k.length > 1 ? ' wide' : '');
-      btn.textContent = k; btn.dataset.key = k;
-      btn.onclick = () => handleKey(k);
-      el.appendChild(btn);
+      btn.textContent = k;
+      btn.dataset.key  = k;
+      btn.addEventListener('click', () => handleKey(k));
+      row.appendChild(btn);
     });
   });
 }
 
 function handleKey(k) {
-  if (gameOver) return;
+  if (gameOver || animating) return;
+
   if (k === '⌫' || k === 'BACKSPACE') {
-    if (currentCol > 0) {
-      currentCol--;
-      board[currentRow][currentCol] = '';
-      getTile(currentRow, currentCol).textContent = '';
-      getTile(currentRow, currentCol).classList.remove('filled');
+    if (curCol > 0) {
+      curCol--;
+      board[curRow][curCol] = '';
+      const t = tile(curRow, curCol);
+      t.textContent = '';
+      t.classList.remove('active');
     }
   } else if (k === 'ENTER') {
-    submitGuess();
-  } else if (/^[A-Z]$/.test(k) && currentCol < 5) {
-    board[currentRow][currentCol] = k;
-    const tile = getTile(currentRow, currentCol);
-    tile.textContent = k; tile.classList.add('filled');
-    currentCol++;
+    submit();
+  } else if (/^[A-Z]$/.test(k) && curCol < 5) {
+    board[curRow][curCol] = k;
+    const t = tile(curRow, curCol);
+    t.textContent = k;
+    t.classList.add('active');
+    // pop animation
+    t.classList.remove('pop');
+    void t.offsetWidth;
+    t.classList.add('pop');
+    curCol++;
   }
 }
 
-function submitGuess() {
-  if (currentCol < 5) { showMsg('Not enough letters'); shakRow(); return; }
-  const guess = board[currentRow].join('');
-  if (!VALID.has(guess) && !WORDS.includes(guess)) { showMsg('Not in word list'); shakRow(); return; }
+function submit() {
+  if (curCol < 5)          { msg('Not enough letters'); shakeRow(); return; }
+  const guess = board[curRow].join('');
+  if (!VALID.has(guess))   { msg('Not in word list');   shakeRow(); return; }
 
-  const result = scoreGuess(guess, target);
-  const row = currentRow;
+  animating = true; // block input during animation
+  const result = score(guess);
+  const row    = curRow;
 
-  result.forEach((res, c) => {
+  // flip each tile with stagger
+  result.forEach((state, c) => {
+    const t = tile(row, c);
+    // phase 1: flip down
     setTimeout(() => {
-      const tile = getTile(row, c);
-      tile.classList.add('flip');
-      setTimeout(() => {
-        tile.classList.remove('flip');
-        tile.classList.add(res);
-        updateKey(board[row][c], res);
-      }, 250);
-    }, c * 120);
+      t.classList.add('flip-in');
+    }, c * 130);
+
+    // phase 2: apply colour + flip up
+    setTimeout(() => {
+      t.classList.remove('flip-in', 'active');
+      t.classList.add(state, 'flip-out');
+      updateKey(board[row][c], state);
+    }, c * 130 + 200);
+
+    // phase 3: clean up flip-out
+    setTimeout(() => {
+      t.classList.remove('flip-out');
+    }, c * 130 + 400);
   });
 
+  const animDone = (result.length - 1) * 130 + 500;
+
   setTimeout(() => {
+    animating = false;
+
     if (guess === target) {
       gameOver = true;
-      const msgs = ['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'];
-      showEnd(true, msgs[row] || 'Got it!', row + 1);
-    } else if (row === 5) {
-      gameOver = true;
-      showEnd(false, 'Better luck next time', 0);
+      bounceRow(row);
+      const labels = ['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'];
+      setTimeout(() => showEnd(true, labels[row], row + 1), 500);
+    } else {
+      curRow++;
+      curCol = 0;
+      if (curRow >= 6) {
+        gameOver = true;
+        setTimeout(() => showEnd(false, 'Hard luck!', 0), 300);
+      }
     }
-  }, 5 * 120 + 400);
-
-  currentRow++; currentCol = 0;
+  }, animDone);
 }
 
-function scoreGuess(guess, target) {
-  const result = Array(5).fill('absent');
-  const tArr = target.split(''), remaining = [...tArr];
-  guess.split('').forEach((l, i) => { if (l === tArr[i]) { result[i] = 'correct'; remaining[i] = null; } });
+function score(guess) {
+  const result    = Array(5).fill('absent');
+  const tChars    = target.split('');
+  const remaining = [...tChars];
+
+  // pass 1: correct positions
+  guess.split('').forEach((l, i) => {
+    if (l === tChars[i]) { result[i] = 'correct'; remaining[i] = null; }
+  });
+
+  // pass 2: present (wrong position)
   guess.split('').forEach((l, i) => {
     if (result[i] === 'correct') return;
     const idx = remaining.indexOf(l);
     if (idx !== -1) { result[i] = 'present'; remaining[idx] = null; }
   });
+
   return result;
 }
 
 function updateKey(letter, state) {
-  const priority = {correct:3, present:2, absent:1};
+  const priority = { correct: 3, present: 2, absent: 1 };
   if (!keyState[letter] || priority[state] > priority[keyState[letter]]) {
     keyState[letter] = state;
     document.querySelectorAll(`.key[data-key="${letter}"]`).forEach(k => {
-      k.classList.remove('correct','present','absent');
+      k.classList.remove('correct', 'present', 'absent');
       k.classList.add(state);
     });
   }
 }
 
-function getTile(r, c) { return document.getElementById(`t${r}${c}`); }
+function tile(r, c) { return document.getElementById('t' + r + c); }
 
-function shakRow() {
-  document.getElementById('r' + currentRow).querySelectorAll('.tile').forEach(t => {
+function shakeRow() {
+  document.querySelectorAll('#r' + curRow + ' .tile').forEach(t => {
     t.classList.remove('shake');
     void t.offsetWidth;
     t.classList.add('shake');
   });
 }
 
-function showMsg(txt, dur = 1800) {
+function bounceRow(r) {
+  document.querySelectorAll('#r' + r + ' .tile').forEach((t, i) => {
+    setTimeout(() => {
+      t.classList.remove('bounce');
+      void t.offsetWidth;
+      t.classList.add('bounce');
+    }, i * 80);
+  });
+}
+
+function msg(text, duration = 1800) {
   const bar = document.getElementById('msgBar');
-  bar.textContent = txt;
+  bar.textContent = text;
   clearTimeout(bar._t);
-  bar._t = setTimeout(() => bar.textContent = '', dur);
+  bar._t = setTimeout(() => { bar.textContent = ''; }, duration);
 }
 
 function showEnd(won, title, tries) {
-  setTimeout(() => {
-    document.getElementById('endEmoji').textContent = won ? ['🎉','✨','🌟','🎯','🔥','😅'][tries-1] : '😔';
-    document.getElementById('endTitle').textContent = title;
-    document.getElementById('endWord').innerHTML = `The word was <strong>${target}</strong>`;
-    document.getElementById('endSub').textContent = won
-      ? `You got it in ${tries} ${tries===1?'try':'tries'}.`
-      : 'Better luck on the next one.';
-    document.getElementById('endCard').style.display = 'flex';
-  }, 600);
+  const emojis = ['🎉','✨','🌟','🎯','🔥','😅'];
+  document.getElementById('endEmoji').textContent = won ? emojis[tries - 1] : '😔';
+  document.getElementById('endTitle').textContent = title;
+  document.getElementById('endWord').textContent  = target;
+  document.getElementById('endSub').textContent   = won
+    ? `You got it in ${tries} ${tries === 1 ? 'try' : 'tries'}.`
+    : 'Better luck on the next one.';
+  document.getElementById('overlay').classList.add('show');
 }
 
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key.toUpperCase();
-  if (k === 'BACKSPACE') handleKey('⌫');
-  else if (k === 'ENTER') handleKey('ENTER');
+  if      (k === 'BACKSPACE') handleKey('⌫');
+  else if (k === 'ENTER')     handleKey('ENTER');
   else if (/^[A-Z]$/.test(k)) handleKey(k);
 });
 
