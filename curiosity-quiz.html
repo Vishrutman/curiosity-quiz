@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Curiosity Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0f;
+    --ink2: #161618;
+    --ink3: #1f1f23;
+    --ink4: #28282e;
+    --border: rgba(255,255,255,0.07);
+    --border-h: rgba(255,255,255,0.15);
+    --text: #f2ede4;
+    --muted: #888;
+    --hint: #555;
+    --amber: #c9a55a;
+    --amber-dim: rgba(201,165,90,0.1);
+    --amber-mid: rgba(201,165,90,0.25);
+    --green: #4caf87;
+    --green-dim: rgba(76,175,135,0.1);
+    --red: #d95f5f;
+    --red-dim: rgba(217,95,95,0.08);
+    --r: 12px;
+    --rs: 7px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--ink);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 80px;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 50% -10%, rgba(201,165,90,0.06) 0%, transparent 70%);
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 0;
+    border-bottom: 0.5px solid var(--border);
+    padding-bottom: 18px;
+    margin-bottom: 52px;
+  }
+
+  .site-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text);
+  }
+
+  .site-logo span { color: var(--amber); }
+
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 5px 12px;
+    border: 0.5px solid var(--border);
+    border-radius: 20px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .api-status:hover { border-color: var(--border-h); color: var(--text); }
+  .api-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--hint);
+    transition: background 0.3s;
+  }
+  .api-dot.live { background: var(--green); }
+
+  /* ── WRAP ── */
+  .wrap { width: 100%; max-width: 680px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── API KEY SCREEN ── */
+  .api-card {
+    background: var(--ink2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 40px 40px 36px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .api-card .eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+  }
+
+  .api-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .api-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .api-card p a {
+    color: var(--amber);
+    text-decoration: none;
+  }
+  .api-card p a:hover { text-decoration: underline; }
+
+  .field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .key-input-wrap {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  input[type="password"], input[type="text"] {
+    flex: 1;
+    background: var(--ink3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--rs);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--amber); }
+  input::placeholder { color: var(--hint); }
+
+  .key-hint {
+    font-size: 11.5px;
+    color: var(--hint);
+    line-height: 1.6;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--rs);
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .btn:active { transform: scale(0.99); }
+
+  .btn-amber {
+    background: var(--amber);
+    border: none;
+    color: #1a1206;
+    padding: 13px 22px;
+  }
+  .btn-amber:hover { opacity: 0.85; }
+  .btn-amber:disabled { opacity: 0.3; cursor: default; }
+
+  .btn-full { width: 100%; padding: 14px; text-align: center; display: block; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 0.5px solid var(--border-h);
+    color: var(--text);
+    padding: 11px 22px;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.04); }
+
+  /* ── HOME / LEVEL SELECT ── */
+  .home-hero {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .home-hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1.12;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .home-hero h1 em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .home-hero p {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.75;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .level-card {
+    background: var(--ink2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 26px 16px 22px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .level-card:hover { border-color: var(--border-h); background: var(--ink3); }
+  .level-card:active { transform: scale(0.98); }
+  .level-card.sel { border-color: var(--amber); background: var(--amber-dim); }
+
+  .level-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ink3);
+    border: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 18px;
+  }
+  .level-card.sel .level-icon { background: var(--amber-mid); border-color: var(--amber); }
+
+  .level-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 7px;
+    color: var(--text);
+  }
+
+  .level-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .level-pill {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--ink4);
+    color: var(--hint);
+    border: 0.5px solid var(--border);
+  }
+  .level-card.sel .level-pill { background: var(--amber-dim); color: var(--amber); border-color: transparent; }
+
+  /* ── ERROR ── */
+  .err {
+    background: var(--red-dim);
+    border: 0.5px solid var(--red);
+    border-radius: var(--rs);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 12px;
+    display: none;
+    line-height: 1.5;
+  }
+  .err.show { display: block; }
+
+  /* ── LOADING ── */
+  .load-wrap { text-align: center; padding: 70px 0; }
+
+  .spinner {
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--border-h);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.85s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .load-txt { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .load-sub { font-size: 12px; color: var(--hint); }
+
+  /* ── PROGRESS ── */
+  .prog-bar {
+    height: 1.5px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 30px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: var(--amber);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── QUESTION ── */
+  .qcard {
+    background: var(--ink2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 28px 32px;
+    margin-bottom: 14px;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .q-num {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--hint);
+  }
+
+  .q-tag {
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    font-weight: 500;
+  }
+
+  .q-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.32rem);
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  /* ── OPTIONS ── */
+  .opts { display: flex; flex-direction: column; gap: 9px; }
+
+  .opt {
+    background: var(--ink3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--rs);
+    padding: 12px 15px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    width: 100%;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--border-h); background: var(--ink4); }
+  .opt:disabled { cursor: default; }
+
+  .opt-l {
+    width: 22px; height: 22px; min-width: 22px;
+    border-radius: 50%;
+    background: var(--ink4);
+    border: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; color: var(--hint);
+    flex-shrink: 0; margin-top: 1px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .opt.correct { background: var(--green-dim); border-color: var(--green); }
+  .opt.correct .opt-l { background: var(--green); border-color: var(--green); color: #fff; }
+  .opt.wrong { background: var(--red-dim); border-color: var(--red); }
+  .opt.wrong .opt-l { background: var(--red); border-color: var(--red); color: #fff; }
+
+  /* ── INSIGHT ── */
+  .insight {
+    background: var(--ink2);
+    border: 0.5px solid var(--border);
+    border-left: 2px solid var(--amber);
+    border-radius: 0 var(--rs) var(--rs) 0;
+    padding: 18px 22px;
+    margin-top: 12px;
+    display: none;
+  }
+  .insight.show { display: block; animation: rise 0.35s ease; }
+  .insight-lbl { font-size: 10px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; }
+  .insight-txt { font-size: 13.5px; color: var(--muted); line-height: 1.8; }
+
+  .dots { display: flex; gap: 5px; align-items: center; height: 20px; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); animation: blink 1.1s ease-in-out infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1); } }
+
+  /* ── NEXT BTN ── */
+  .next-btn { display: none; width: 100%; margin-top: 14px; }
+  .next-btn.show { display: block; }
+
+  /* ── SCORE ── */
+  .score-card {
+    background: var(--ink2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 50px 40px;
+    text-align: center;
+  }
+
+  .score-glyph {
+    font-size: 44px;
+    margin-bottom: 18px;
+    display: block;
+    filter: grayscale(0.2);
+  }
+
+  .score-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .score-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem;
+    font-weight: 400;
+    color: var(--amber);
+    line-height: 1;
+    margin: 18px 0 8px;
+  }
+
+  .score-denom { font-size: 1.8rem; color: var(--muted); }
+
+  .score-bar-wrap {
+    background: var(--ink3);
+    border-radius: 4px;
+    height: 4px;
+    max-width: 180px;
+    margin: 0 auto 20px;
+    overflow: hidden;
+  }
+  .score-bar-fill { height: 100%; background: var(--amber); border-radius: 4px; transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+  .score-badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 14px;
+    border-radius: 20px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    margin-bottom: 16px;
+  }
+
+  .score-sub {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 380px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+
+  .action-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    margin-top: 60px;
+    font-size: 12px;
+    color: var(--hint);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  /* responsive */
+  @media (max-width: 520px) {
+    .level-grid { grid-template-columns: 1fr; }
+    .qcard { padding: 22px 18px; }
+    .score-card { padding: 36px 22px; }
+    .api-card { padding: 28px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-logo">Curiosity<span>.</span></div>
+  <div class="api-status" id="apiStatus" onclick="showApiScreen()">
+    <div class="api-dot" id="apiDot"></div>
+    <span id="apiStatusTxt">Set API key</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- API KEY SCREEN -->
+  <div class="screen active" id="sApi">
+    <div class="api-card">
+      <p class="eyebrow">Setup</p>
+      <h2>Connect your Anthropic key</h2>
+      <p>
+        This app uses the Claude API to generate fresh questions every round.
+        Your key is stored only in your browser — never sent anywhere else.<br><br>
+        Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+      </p>
+      <label class="field-label" for="apiKeyInput">API Key</label>
+      <div class="key-input-wrap">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+        <button class="btn btn-amber" onclick="saveKey()">Save</button>
+      </div>
+      <p class="key-hint">Your key stays in localStorage in this browser only and is never transmitted to any third party. You can clear it at any time using the key button in the header.</p>
+      <div class="err show" id="apiErr" style="display:none;margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="screen" id="sLevel">
+    <div class="home-hero">
+      <span class="eyebrow">The Curiosity Engine</span>
+      <h1>Questions worth<br><em>wondering about</em></h1>
+      <p>Every round is freshly generated by AI — no two quizzes are ever the same.</p>
+    </div>
+
+    <div class="level-grid">
+      <div class="level-card" data-level="Novice" onclick="pickLevel(this)">
+        <div class="level-icon">🌱</div>
+        <div class="level-name">Novice</div>
+        <div class="level-desc">Surprising everyday phenomena. No specialist knowledge required.</div>
+        <span class="level-pill">For curious beginners</span>
+      </div>
+      <div class="level-card" data-level="Explorer" onclick="pickLevel(this)">
+        <div class="level-icon">🔭</div>
+        <div class="level-name">Explorer</div>
+        <div class="level-desc">Intermediate facts that reward curiosity. Known fields, unknown depth.</div>
+        <span class="level-pill">For the keen mind</span>
+      </div>
+      <div class="level-card" data-level="Expert" onclick="pickLevel(this)">
+        <div class="level-icon">🧠</div>
+        <div class="level-name">Expert</div>
+        <div class="level-desc">Technical, precise, genuinely difficult. Designed to humble.</div>
+        <span class="level-pill">For the obsessed</span>
+      </div>
+    </div>
+    <button class="btn btn-amber btn-full" id="startBtn" disabled onclick="generateQuiz()">Select a level to begin</button>
+    <div class="err" id="genErr"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="screen" id="sLoad">
+    <div class="load-wrap">
+      <div class="spinner"></div>
+      <p class="load-txt">Generating your questions…</p>
+      <p class="load-sub" id="loadSub">Crafting accurate questions for your level</p>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="sQuiz">
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="qcard" id="qCard">
+      <div class="q-meta">
+        <span class="q-num" id="qNum">Question 1 of 8</span>
+        <span class="q-tag" id="qTag">Science</span>
+      </div>
+      <p class="q-text" id="qText"></p>
+      <div class="opts" id="opts"></div>
+    </div>
+    <div class="insight" id="insightPanel">
+      <div class="insight-lbl">Dig deeper</div>
+      <div class="insight-txt" id="insightTxt">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      </div>
+    </div>
+    <button class="btn btn-amber btn-full next-btn" id="nextBtn">Next question →</button>
+  </div>
+
+  <!-- SCORE -->
+  <div class="screen" id="sScore">
+    <div class="score-card">
+      <span class="score-glyph" id="sIco">🌍</span>
+      <p class="score-title" id="sTitle">Well done.</p>
+      <div class="score-num" id="sNum">6<span class="score-denom">/8</span></div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="sPfill" style="width:0%"></div></div>
+      <div class="score-badge" id="sBadge">Explorer</div>
+      <p class="score-sub" id="sSub">Keep pulling the threads.</p>
+      <div class="action-row">
+        <button class="btn btn-amber" onclick="generateQuiz()">Play again — same level</button>
+        <button class="btn btn-ghost" onclick="goLevel()">Change level</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  Powered by Claude · Your API key never leaves your browser
+</footer>
+
+<script>
+  const API_URL = "https://api.anthropic.com/v1/messages";
+  let apiKey = localStorage.getItem('cq_key') || '';
+  let level = null, questions = [], cur = 0, score = 0, answered = false;
+
+  // ── INIT ──
+  (function init() {
+    if (apiKey) {
+      updateApiStatus(true);
+      show('sLevel');
+    } else {
+      show('sApi');
+    }
+  })();
+
+  function updateApiStatus(live) {
+    document.getElementById('apiDot').className = 'api-dot' + (live ? ' live' : '');
+    document.getElementById('apiStatusTxt').textContent = live ? 'API key set' : 'Set API key';
+  }
+
+  function showApiScreen() {
+    document.getElementById('apiKeyInput').value = apiKey ? '••••••••••••••••' : '';
+    show('sApi');
+  }
+
+  function saveKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    const errEl = document.getElementById('apiErr');
+    errEl.style.display = 'none';
+    if (!val || val === '••••••••••••••••') {
+      if (apiKey) { show('sLevel'); return; }
+      errEl.style.display = 'block';
+      errEl.textContent = 'Please enter a valid API key.';
+      return;
+    }
+    if (!val.startsWith('sk-')) {
+      errEl.style.display = 'block';
+      errEl.textContent = 'That doesn\'t look like a valid Anthropic key. It should start with sk-ant-...';
+      return;
+    }
+    apiKey = val;
+    localStorage.setItem('cq_key', apiKey);
+    updateApiStatus(true);
+    show('sLevel');
+  }
+
+  // ── LEVEL SELECT ──
+  function pickLevel(el) {
+    document.querySelectorAll('.level-card').forEach(c => c.classList.remove('sel'));
+    el.classList.add('sel');
+    level = el.dataset.level;
+    const btn = document.getElementById('startBtn');
+    btn.disabled = false;
+    btn.textContent = 'Start ' + level + ' Quiz →';
+  }
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── GENERATE ──
+  async function generateQuiz() {
+    document.getElementById('genErr').classList.remove('show');
+    show('sLoad');
+
+    const ctx = {
+      Novice: "everyday science, nature, history, and psychology — surprising but accessible, no specialist knowledge required",
+      Explorer: "intermediate science, history, psychology, cosmology, biology, language — well-known domains but lesser-known facts that reward genuine curiosity",
+      Expert: "advanced physics, neuroscience, mathematics, evolutionary biology, philosophy of science, formal logic — technically precise, genuinely difficult"
+    };
+
+    const prompt = `Generate exactly 8 trivia quiz questions at ${level} difficulty covering: ${ctx[level]}.
+
+Every single fact must be 100% verifiably accurate. Questions should provoke curiosity and feel worth asking.
+
+Return ONLY a valid raw JSON array — no markdown, no code fences, no explanation. Each element must have:
+- "tag": 1-2 word topic label (e.g. "Physics", "Behaviour", "Language")
+- "question": question text phrased to provoke curiosity
+- "options": array of exactly 4 strings — all plausible, not obviously wrong
+- "answer": integer 0-3 (index of the correct option)
+- "fact": 2 sentences of deeper, surprising context about the correct answer
+
+Vary topics across all 8 questions. Do not repeat any topic.`;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 2048,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (res.status === 401) {
+        throw new Error('invalid_key');
+      }
+      if (!res.ok) {
+        throw new Error('api_error');
+      }
+
+      const data = await res.json();
+      const raw = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
+      questions = JSON.parse(raw);
+      if (!Array.isArray(questions) || questions.length < 4) throw new Error('bad_format');
+
+      cur = 0; score = 0; answered = false;
+      renderQ();
+      show('sQuiz');
+
+    } catch (e) {
+      show('sLevel');
+      const errEl = document.getElementById('genErr');
+      if (e.message === 'invalid_key') {
+        errEl.textContent = 'Your API key appears invalid. Click "API key set" in the header to update it.';
+      } else if (e.message === 'bad_format') {
+        errEl.textContent = 'The AI returned an unexpected format. Please try again.';
+      } else {
+        errEl.textContent = 'Could not generate questions. Check your API key and internet connection, then try again.';
+      }
+      errEl.classList.add('show');
+    }
+  }
+
+  // ── RENDER QUESTION ──
+  function renderQ() {
+    answered = false;
+    const q = questions[cur], total = questions.length;
+    document.getElementById('qNum').textContent = `Question ${cur + 1} of ${total}`;
+    document.getElementById('qTag').textContent = q.tag;
+    document.getElementById('qText').textContent = q.question;
+    document.getElementById('progFill').style.width = `${(cur / total) * 100}%`;
+    document.getElementById('nextBtn').classList.remove('show');
+    document.getElementById('insightPanel').classList.remove('show');
+
+    const c = document.getElementById('opts');
+    c.innerHTML = '';
+    ['A', 'B', 'C', 'D'].forEach((letter, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.innerHTML = `<span class="opt-l">${letter}</span><span>${q.options[i]}</span>`;
+      b.onclick = () => pick(i);
+      c.appendChild(b);
+    });
+
+    const card = document.getElementById('qCard');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = 'rise 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+  }
+
+  // ── PICK ANSWER ──
+  function pick(idx) {
+    if (answered) return;
+    answered = true;
+    const q = questions[cur];
+    document.querySelectorAll('.opt').forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('correct');
+      else if (i === idx && idx !== q.answer) b.classList.add('wrong');
+    });
+    if (idx === q.answer) score++;
+    fetchInsight(q);
+    document.getElementById('nextBtn').classList.add('show');
+  }
+
+  // ── INSIGHT ──
+  async function fetchInsight(q) {
+    const panel = document.getElementById('insightPanel');
+    const txt = document.getElementById('insightTxt');
+    panel.classList.add('show');
+    txt.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+    const prompt = `The user just answered this ${level}-level quiz question:
+Question: "${q.question}"
+Correct answer: "${q.options[q.answer]}"
+Base fact: "${q.fact}"
+
+Write one paragraph (2–3 sentences) revealing something genuinely surprising or counterintuitive that most people don't know — something that makes the reader want to learn more. Intellectually rich but conversational. No preamble or "great question!".`;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 512,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      txt.textContent = data.content?.[0]?.text || q.fact;
+    } catch {
+      txt.textContent = q.fact;
+    }
+  }
+
+  // ── NEXT ──
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    cur++;
+    if (cur >= questions.length) showScore();
+    else {
+      document.getElementById('insightPanel').classList.remove('show');
+      document.getElementById('nextBtn').classList.remove('show');
+      renderQ();
+    }
+  });
+
+  // ── SCORE ──
+  function showScore() {
+    document.getElementById('progFill').style.width = '100%';
+    const total = questions.length;
+    const pct = Math.round((score / total) * 100);
+    const tiers = [
+      { ico: '🌱', title: 'Keep exploring.', sub: 'Every wrong answer is something new worth looking up.' },
+      { ico: '🔍', title: "You're asking the right questions.", sub: 'The gaps are where the interesting things hide.' },
+      { ico: '🌍', title: 'A genuinely curious mind.', sub: 'You see patterns most people walk straight past.' },
+      { ico: '✨', title: 'Exceptional.', sub: "You don't just answer questions — you understand why they're worth asking." },
+      { ico: '🧠', title: 'Remarkable.', sub: 'The world needs more people who wonder this carefully.' }
+    ];
+    const t = tiers[Math.min(Math.floor(pct / 21), 4)];
+    document.getElementById('sIco').textContent = t.ico;
+    document.getElementById('sTitle').textContent = t.title;
+    document.getElementById('sNum').innerHTML = `${score}<span class="score-denom">/${total}</span>`;
+    document.getElementById('sSub').textContent = t.sub;
+    document.getElementById('sBadge').textContent = level;
+    show('sScore');
+    setTimeout(() => { document.getElementById('sPfill').style.width = `${pct}%`; }, 300);
+  }
+
+  function goLevel() {
+    document.getElementById('genErr').classList.remove('show');
+    show('sLevel');
+  }
+</script>
+</body>
+</html>

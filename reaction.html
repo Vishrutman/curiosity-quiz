@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaction Test — The Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0f;--ink2:#131318;--ink3:#1a1a21;
+  --border:rgba(255,255,255,0.07);--border-h:rgba(255,255,255,0.14);
+  --text:#f0ece3;--muted:#777;--hint:#444;
+  --sky:#5a8fc9;--sky-d:rgba(90,143,201,0.12);
+  --green:#6ab87a;--green-d:rgba(106,184,122,0.12);
+  --red:#c96a6a;--red-d:rgba(201,106,106,0.12);
+  --amber:#c9a55a;
+}
+body{
+  font-family:'Outfit',sans-serif;background:var(--ink);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:0 16px 60px;
+}
+
+.header{
+  width:100%;max-width:500px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:40px;
+}
+.back{font-size:12px;color:var(--hint);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.back:hover{color:var(--text);}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;}
+.logo em{font-style:italic;color:var(--sky);}
+
+/* ROUNDS */
+.rounds{display:flex;gap:8px;justify-content:center;margin-bottom:36px;}
+.round-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--ink3);border:0.5px solid var(--border);
+  transition:background .3s,border-color .3s;
+}
+.round-dot.done{background:var(--sky);border-color:var(--sky);}
+.round-dot.current{background:var(--sky-d);border-color:var(--sky);}
+
+/* ARENA */
+.arena{
+  width:320px;height:320px;border-radius:16px;
+  border:0.5px solid var(--border);background:var(--ink2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;
+  transition:background .25s,border-color .25s;
+  margin-bottom:32px;position:relative;overflow:hidden;
+}
+.arena.waiting{background:var(--ink2);}
+.arena.ready{background:var(--green-d);border-color:var(--green);animation:pulse .4s ease;}
+.arena.early{background:var(--red-d);border-color:var(--red);}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+.arena-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:600;margin-bottom:8px;
+  transition:color .25s;
+  text-align:center;line-height:1.2;
+}
+.arena-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;max-width:200px;}
+
+/* RESULT BUBBLE */
+.result-time{
+  font-family:'Cormorant Garamond',serif;
+  font-size:4rem;font-weight:400;
+  color:var(--sky);line-height:1;margin-bottom:4px;
+}
+.result-ms{font-size:1rem;color:var(--muted);}
+
+/* SCORES */
+.score-list{
+  width:100%;max-width:320px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.score-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--ink2);border:0.5px solid var(--border);
+  border-radius:8px;padding:10px 16px;
+  animation:rise .3s ease;
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.score-round{font-size:12px;color:var(--hint);}
+.score-val{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--sky);}
+
+/* SUMMARY */
+.summary{
+  background:var(--ink2);border:0.5px solid var(--border-h);
+  border-radius:14px;padding:32px;text-align:center;
+  width:100%;max-width:320px;
+  animation:rise .4s ease;
+}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;margin-bottom:16px;}
+.avg-num{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:400;color:var(--sky);line-height:1;}
+.avg-lbl{font-size:12px;color:var(--hint);margin-bottom:8px;letter-spacing:0.06em;}
+.rating{display:inline-block;font-size:12px;padding:4px 12px;border-radius:20px;margin-bottom:20px;}
+.rating.elite{background:var(--green-d);color:var(--green);border:0.5px solid var(--green);}
+.rating.great{background:var(--sky-d);color:var(--sky);border:0.5px solid var(--sky);}
+.rating.good{background:var(--sky-d);color:var(--sky);border:0.5px solid var(--sky);}
+.rating.okay{background:rgba(201,165,90,0.12);color:var(--amber);border:0.5px solid var(--amber);}
+.rating.slow{background:var(--red-d);color:var(--red);border:0.5px solid var(--red);}
+.btn{
+  width:100%;padding:13px;border-radius:8px;border:none;
+  font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+  background:var(--sky);color:#fff;cursor:pointer;transition:opacity .2s;
+}
+.btn:hover{opacity:.82;}
+
+@media(max-width:400px){.arena{width:280px;height:280px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back" href="index.html">← Back</a>
+  <div class="logo">Reaction<em> Test</em></div>
+  <div></div>
+</div>
+
+<div class="rounds" id="rounds"></div>
+
+<div class="arena" id="arena" onclick="handleClick()">
+  <div class="arena-label" id="arenaLabel">Tap to start</div>
+  <div class="arena-sub" id="arenaSub">5 rounds · click when it turns green</div>
+</div>
+
+<div class="score-list" id="scoreList"></div>
+
+<script>
+const ROUNDS = 5;
+let state = 'idle', round = 0, scores = [], waitTimeout, startTime;
+
+function buildDots() {
+  const r = document.getElementById('rounds');
+  r.innerHTML = '';
+  for (let i = 0; i < ROUNDS; i++) {
+    const d = document.createElement('div');
+    d.className = 'round-dot' + (i < round ? ' done' : i === round ? ' current' : '');
+    r.appendChild(d);
+  }
+}
+
+function handleClick() {
+  const arena = document.getElementById('arena');
+  if (state === 'idle' || state === 'done') { startGame(); return; }
+  if (state === 'waiting') {
+    clearTimeout(waitTimeout);
+    setArena('early','Too soon! 😬','Click to try again');
+    state = 'penalised';
+    return;
+  }
+  if (state === 'penalised') { nextRound(); return; }
+  if (state === 'ready') {
+    const ms = Date.now() - startTime;
+    scores.push(ms);
+    setArena('waiting',`${ms} ms`,'');
+    document.getElementById('arenaSub').innerHTML = `<span class="result-time">${ms}</span><span class="result-ms"> ms</span>`;
+
+    addScoreRow(round + 1, ms);
+    round++;
+    buildDots();
+
+    if (round >= ROUNDS) { setTimeout(showSummary, 700); state = 'done'; }
+    else { state = 'idle-between'; setTimeout(nextRound, 900); }
+  }
+}
+
+function startGame() {
+  round = 0; scores = [];
+  document.getElementById('scoreList').innerHTML = '';
+  buildDots();
+  nextRound();
+}
+
+function nextRound() {
+  state = 'waiting';
+  setArena('waiting','Wait for green…','Don\'t click too early!');
+  const delay = 1500 + Math.random() * 2500;
+  waitTimeout = setTimeout(() => {
+    startTime = Date.now();
+    state = 'ready';
+    setArena('ready','Click now!','');
+  }, delay);
+}
+
+function setArena(cls, label, sub) {
+  const arena = document.getElementById('arena');
+  arena.className = 'arena ' + cls;
+  document.getElementById('arenaLabel').textContent = label;
+  document.getElementById('arenaSub').textContent = sub;
+}
+
+function addScoreRow(num, ms) {
+  const list = document.getElementById('scoreList');
+  const row = document.createElement('div');
+  row.className = 'score-row';
+  row.innerHTML = `<span class="score-round">Round ${num}</span><span class="score-val">${ms} ms</span>`;
+  list.appendChild(row);
+}
+
+function showSummary() {
+  const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  let ratingClass, ratingText;
+  if (avg < 180) { ratingClass='elite'; ratingText='Elite reflexes'; }
+  else if (avg < 220) { ratingClass='great'; ratingText='Excellent'; }
+  else if (avg < 280) { ratingClass='good'; ratingText='Above average'; }
+  else if (avg < 350) { ratingClass='okay'; ratingText='Average'; }
+  else { ratingClass='slow'; ratingText='Keep practising'; }
+
+  const list = document.getElementById('scoreList');
+  list.innerHTML = '';
+  const s = document.createElement('div');
+  s.className = 'summary';
+  s.innerHTML = `
+    <div class="summary-title">Your results</div>
+    <div class="avg-lbl">AVERAGE REACTION TIME</div>
+    <div class="avg-num">${avg}</div>
+    <div class="avg-lbl">milliseconds</div>
+    <div class="rating ${ratingClass}">${ratingText}</div>
+    <button class="btn" onclick="startGame()">Play again →</button>
+  `;
+  list.appendChild(s);
+
+  setArena('waiting','Nice work!','See your results below');
+  state = 'done';
+  buildDots();
+  document.querySelectorAll('.round-dot').forEach(d => d.classList.add('done'));
+}
+
+buildDots();
+</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Speed — The Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400&family=Outfit:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0f;--ink2:#131318;--ink3:#1a1a21;--ink4:#222229;
+  --border:rgba(255,255,255,0.07);--border-h:rgba(255,255,255,0.14);
+  --text:#f0ece3;--muted:#555;--hint:#444;
+  --green:#6ab87a;--green-d:rgba(106,184,122,0.12);
+  --red:#c96a6a;--red-d:rgba(201,106,106,0.12);
+  --amber:#c9a55a;--amber-d:rgba(201,165,90,0.12);
+}
+body{
+  font-family:'Outfit',sans-serif;background:var(--ink);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:0 16px 60px;
+  background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(106,184,122,0.04) 0%,transparent 60%);
+}
+.header{
+  width:100%;max-width:640px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:36px;
+}
+.back{font-size:12px;color:var(--hint);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.back:hover{color:var(--text);}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;}
+.logo em{font-style:italic;color:var(--green);}
+
+/* DURATION */
+.dur-row{display:flex;gap:8px;justify-content:center;margin-bottom:28px;}
+.dur-btn{
+  padding:7px 18px;border-radius:20px;border:0.5px solid var(--border);
+  background:var(--ink3);color:var(--muted);font-family:'Outfit',sans-serif;
+  font-size:12px;cursor:pointer;transition:all .2s;
+}
+.dur-btn:hover{border-color:var(--border-h);color:var(--text);}
+.dur-btn.active{background:var(--green-d);border-color:var(--green);color:var(--green);}
+
+/* TIMER + STATS */
+.live-stats{
+  display:flex;gap:32px;justify-content:center;margin-bottom:24px;
+}
+.live-stat{text-align:center;}
+.live-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.4rem;font-weight:400;color:var(--green);line-height:1;
+}
+.live-lbl{font-size:11px;color:var(--hint);margin-top:2px;letter-spacing:0.06em;}
+.live-num.timer-warn{color:var(--amber);}
+.live-num.timer-urgent{color:var(--red);}
+
+/* TEXT DISPLAY */
+.text-box{
+  width:100%;max-width:640px;
+  background:var(--ink2);border:0.5px solid var(--border);
+  border-radius:12px;padding:24px 28px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:18px;line-height:1.9;
+  margin-bottom:16px;
+  letter-spacing:0.02em;
+  position:relative;overflow:hidden;
+  min-height:120px;
+}
+
+.char{color:var(--muted);position:relative;}
+.char.correct{color:var(--text);}
+.char.wrong{color:var(--red);background:var(--red-d);border-radius:2px;}
+.char.cursor::after{
+  content:'';position:absolute;left:0;bottom:0;width:2px;height:100%;
+  background:var(--green);animation:blink .8s ease infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* INPUT */
+.input-area{
+  width:100%;max-width:640px;
+  background:var(--ink3);border:0.5px solid var(--border);
+  border-radius:10px;padding:14px 18px;
+  font-family:'JetBrains Mono',monospace;font-size:16px;
+  color:var(--text);outline:none;resize:none;
+  transition:border-color .2s;
+  height:52px;overflow:hidden;
+}
+.input-area:focus{border-color:var(--border-h);}
+.input-area:disabled{opacity:0.4;cursor:default;}
+
+/* HINT */
+.hint-txt{font-size:12px;color:var(--hint);text-align:center;margin-top:10px;}
+
+/* RESULTS */
+.results{
+  width:100%;max-width:640px;
+  background:var(--ink2);border:0.5px solid var(--border-h);
+  border-radius:14px;padding:32px;
+  animation:rise .4s ease;
+  display:none;
+}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.res-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;margin-bottom:24px;text-align:center;}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+.res-stat{
+  background:var(--ink3);border-radius:10px;padding:16px;text-align:center;
+  border:0.5px solid var(--border);
+}
+.res-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--green);line-height:1;margin-bottom:4px;}
+.res-lbl{font-size:11px;color:var(--hint);letter-spacing:0.06em;}
+.res-badge{
+  display:inline-block;font-size:12px;padding:5px 14px;border-radius:20px;
+  margin-bottom:24px;
+}
+.badge-elite{background:var(--green-d);color:var(--green);border:0.5px solid var(--green);}
+.badge-great{background:var(--green-d);color:var(--green);border:0.5px solid var(--green);}
+.badge-good{background:var(--amber-d);color:var(--amber);border:0.5px solid var(--amber);}
+.badge-avg{background:var(--amber-d);color:var(--amber);border:0.5px solid var(--amber);}
+.badge-slow{background:var(--red-d);color:var(--red);border:0.5px solid var(--red);}
+.btn{
+  width:100%;padding:13px;border-radius:8px;border:none;
+  font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+  background:var(--green);color:#fff;cursor:pointer;transition:opacity .2s;
+}
+.btn:hover{opacity:.82;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back" href="index.html">← Back</a>
+  <div class="logo">Type<em> Speed</em></div>
+  <div></div>
+</div>
+
+<div class="dur-row">
+  <button class="dur-btn" onclick="setDur(15,this)">15s</button>
+  <button class="dur-btn active" onclick="setDur(30,this)">30s</button>
+  <button class="dur-btn" onclick="setDur(60,this)">60s</button>
+</div>
+
+<div class="live-stats">
+  <div class="live-stat"><div class="live-num" id="wpmLive">—</div><div class="live-lbl">WPM</div></div>
+  <div class="live-stat"><div class="live-num" id="timerDisp">30</div><div class="live-lbl">Seconds</div></div>
+  <div class="live-stat"><div class="live-num" id="accLive">—</div><div class="live-lbl">Accuracy</div></div>
+</div>
+
+<div class="text-box" id="textBox"></div>
+
+<textarea class="input-area" id="inputArea" placeholder="Start typing to begin…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+<p class="hint-txt" id="hintTxt">Type the text above. Timer starts on first keystroke.</p>
+
+<div class="results" id="results">
+  <div class="res-title">Results</div>
+  <div class="res-grid">
+    <div class="res-stat"><div class="res-num" id="rWpm">0</div><div class="res-lbl">WPM</div></div>
+    <div class="res-stat"><div class="res-num" id="rAcc">0%</div><div class="res-lbl">Accuracy</div></div>
+    <div class="res-stat"><div class="res-num" id="rErrs">0</div><div class="res-lbl">Errors</div></div>
+  </div>
+  <div style="text-align:center;margin-bottom:20px;"><span class="res-badge" id="rBadge">Good</span></div>
+  <button class="btn" onclick="initGame()">Try again →</button>
+</div>
+
+<script>
+const PASSAGES = [
+  "the quick brown fox jumps over the lazy dog and the dog did not seem to mind at all",
+  "curiosity is the engine of achievement and the spark that lights the fire of discovery",
+  "in the middle of difficulty lies opportunity waiting for those patient enough to find it",
+  "the only way to do great work is to love what you do and let that passion guide every step",
+  "not all those who wander are lost and sometimes the longest path leads to the greatest wisdom",
+  "simplicity is the ultimate sophistication and the hardest thing to achieve in any craft",
+  "every expert was once a beginner and every master was once someone who decided to keep going",
+  "the universe is under no obligation to make sense to you but you are free to keep asking why",
+  "a smooth sea never made a skilled sailor and a quiet life never made a curious mind",
+  "the measure of intelligence is the ability to change when the evidence demands it"
+];
+
+let duration = 30, passage = '', charIdx = 0;
+let started = false, finished = false;
+let timerInterval, timeLeft, errors = 0, totalTyped = 0;
+
+function setDur(d, btn) {
+  duration = d;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initGame();
+}
+
+function initGame() {
+  clearInterval(timerInterval);
+  started = false; finished = false;
+  charIdx = 0; errors = 0; totalTyped = 0;
+  timeLeft = duration;
+
+  passage = PASSAGES[Math.floor(Math.random() * PASSAGES.length)];
+
+  document.getElementById('wpmLive').textContent = '—';
+  document.getElementById('accLive').textContent = '—';
+  document.getElementById('timerDisp').textContent = duration;
+  document.getElementById('timerDisp').className = 'live-num';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('hintTxt').textContent = 'Type the text above. Timer starts on first keystroke.';
+
+  const input = document.getElementById('inputArea');
+  input.value = '';
+  input.disabled = false;
+  input.focus();
+
+  renderText();
+}
+
+function renderText() {
+  const box = document.getElementById('textBox');
+  box.innerHTML = passage.split('').map((ch, i) => {
+    let cls = 'char';
+    if (i < charIdx) cls += document.getElementById('inputArea').value[i] === ch ? ' correct' : ' wrong';
+    if (i === charIdx) cls += ' cursor';
+    return `<span class="${cls}">${ch}</span>`;
+  }).join('');
+}
+
+document.getElementById('inputArea').addEventListener('input', function() {
+  if (finished) return;
+
+  if (!started) {
+    started = true;
+    timeLeft = duration;
+    timerInterval = setInterval(tick, 1000);
+    document.getElementById('hintTxt').textContent = 'Keep going!';
+  }
+
+  const typed = this.value;
+  totalTyped = typed.length;
+  charIdx = typed.length;
+  errors = 0;
+  for (let i = 0; i < typed.length; i++) {
+    if (typed[i] !== passage[i]) errors++;
+  }
+
+  updateLiveStats();
+  renderText();
+
+  if (typed.length >= passage.length) endGame();
+});
+
+function tick() {
+  timeLeft--;
+  document.getElementById('timerDisp').textContent = timeLeft;
+  const td = document.getElementById('timerDisp');
+  if (timeLeft <= 5) td.className = 'live-num timer-urgent';
+  else if (timeLeft <= 10) td.className = 'live-num timer-warn';
+  updateLiveStats();
+  if (timeLeft <= 0) endGame();
+}
+
+function updateLiveStats() {
+  const elapsed = duration - timeLeft;
+  if (elapsed > 0) {
+    const correct = totalTyped - errors;
+    const wpm = Math.round((correct / 5) / (elapsed / 60));
+    const acc = totalTyped > 0 ? Math.round((correct / totalTyped) * 100) : 100;
+    document.getElementById('wpmLive').textContent = wpm;
+    document.getElementById('accLive').textContent = acc + '%';
+  }
+}
+
+function endGame() {
+  clearInterval(timerInterval);
+  finished = true;
+  document.getElementById('inputArea').disabled = true;
+
+  const elapsed = duration - timeLeft || duration;
+  const correct = totalTyped - errors;
+  const wpm = Math.round((correct / 5) / (elapsed / 60));
+  const acc = totalTyped > 0 ? Math.round((correct / totalTyped) * 100) : 100;
+
+  document.getElementById('rWpm').textContent = wpm;
+  document.getElementById('rAcc').textContent = acc + '%';
+  document.getElementById('rErrs').textContent = errors;
+
+  let badgeClass, badgeText;
+  if (wpm >= 80) { badgeClass='badge-elite'; badgeText='Elite typist'; }
+  else if (wpm >= 60) { badgeClass='badge-great'; badgeText='Excellent'; }
+  else if (wpm >= 40) { badgeClass='badge-good'; badgeText='Good speed'; }
+  else if (wpm >= 25) { badgeClass='badge-avg'; badgeText='Average'; }
+  else { badgeClass='badge-slow'; badgeText='Keep practising'; }
+
+  const badge = document.getElementById('rBadge');
+  badge.className = 'res-badge ' + badgeClass;
+  badge.textContent = badgeText;
+
+  document.getElementById('results').style.display = 'block';
+}
+
+initGame();
+</script>
+</body>
+</html>
