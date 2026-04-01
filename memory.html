@@ -18,106 +18,115 @@
 body{
   font-family:'Outfit',sans-serif;background:var(--ink);color:var(--text);
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:0 16px 60px;
-  background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(201,106,106,0.04) 0%,transparent 60%);
+  padding:0 20px 80px;
+  background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(201,106,106,0.05) 0%,transparent 60%);
 }
-
-/* HEADER */
 .header{
-  width:100%;max-width:580px;
+  width:100%;max-width:680px;
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:28px;
+  padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:32px;
 }
 .back{font-size:12px;color:var(--hint);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
 .back:hover{color:var(--text);}
-.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;letter-spacing:0.05em;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;}
 .logo em{font-style:italic;color:var(--rose);}
 
-/* STATS */
-.stats{
-  display:flex;gap:20px;justify-content:center;margin-bottom:20px;
-}
+.stats{display:flex;gap:40px;justify-content:center;margin-bottom:24px;}
 .stat{text-align:center;}
-.stat-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--rose);line-height:1;}
-.stat-lbl{font-size:11px;color:var(--hint);margin-top:2px;letter-spacing:0.06em;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:600;color:var(--rose);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--hint);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase;}
 
-/* DIFFICULTY */
-.diff-row{display:flex;gap:8px;justify-content:center;margin-bottom:24px;}
+.diff-row{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap;}
 .diff-btn{
-  padding:7px 18px;border-radius:20px;border:0.5px solid var(--border);
+  padding:8px 20px;border-radius:20px;border:0.5px solid var(--border);
   background:var(--ink3);color:var(--muted);font-family:'Outfit',sans-serif;
   font-size:12px;cursor:pointer;transition:all .2s;
 }
 .diff-btn:hover{border-color:var(--border-h);color:var(--text);}
 .diff-btn.active{background:var(--rose-d);border-color:var(--rose);color:var(--rose);}
 
-/* GRID */
-.grid{
-  display:grid;gap:10px;
-  margin-bottom:24px;
-  justify-content:center;
-}
-.grid.easy{grid-template-columns:repeat(4,1fr);max-width:320px;}
-.grid.medium{grid-template-columns:repeat(4,1fr);max-width:380px;}
-.grid.hard{grid-template-columns:repeat(6,1fr);max-width:480px;}
+.grid-wrap{width:100%;max-width:640px;display:flex;justify-content:center;margin-bottom:28px;}
+
+.grid{display:grid;gap:14px;width:100%;}
+.grid.easy{grid-template-columns:repeat(4,1fr);max-width:440px;}
+.grid.medium{grid-template-columns:repeat(4,1fr);max-width:520px;}
+.grid.hard{grid-template-columns:repeat(6,1fr);max-width:600px;}
 
 /* CARD */
-.card{
-  aspect-ratio:1;border-radius:var(--rs);cursor:pointer;
-  perspective:600px;
-}
+.card{width:100%;aspect-ratio:1;cursor:pointer;perspective:800px;}
 .card-inner{
-  width:100%;height:100%;
-  position:relative;transform-style:preserve-3d;
-  transition:transform .4s cubic-bezier(0.16,1,0.3,1);
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .42s cubic-bezier(0.16,1,0.3,1);
+  border-radius:var(--r);
 }
 .card.flipped .card-inner,.card.matched .card-inner{transform:rotateY(180deg);}
-.card-front,.card-back{
-  position:absolute;inset:0;border-radius:var(--rs);
+
+.card-face{
+  position:absolute;inset:0;border-radius:var(--r);
   backface-visibility:hidden;
   display:flex;align-items:center;justify-content:center;
 }
+
+/* Hidden side */
 .card-back{
   background:var(--ink3);border:0.5px solid var(--border);
-  font-size:22px;
-  transform:rotateY(180deg);
+  font-size:1.6rem;color:var(--hint);
+  transition:background .2s,border-color .2s;
 }
+.card:hover:not(.flipped):not(.matched) .card-back{background:var(--ink4);border-color:var(--border-h);}
+
+/* Emoji side */
 .card-front{
   background:var(--ink2);border:0.5px solid var(--border);
+  transform:rotateY(180deg);
 }
-.card-front::after{
-  content:'';width:12px;height:12px;border-radius:2px;
-  background:var(--border-h);
-}
-.card.matched .card-back{
-  background:var(--rose-d);border-color:var(--rose);
-  animation:pulse .3s ease;
-}
-@keyframes pulse{0%{transform:rotateY(180deg) scale(1)}50%{transform:rotateY(180deg) scale(1.08)}100%{transform:rotateY(180deg) scale(1)}}
+.grid.easy .card-front{font-size:3rem;}
+.grid.medium .card-front{font-size:2.4rem;}
+.grid.hard .card-front{font-size:1.8rem;}
 
-/* BUTTONS */
-.btn{
-  padding:12px 28px;border-radius:var(--rs);border:none;
-  font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
-  cursor:pointer;transition:opacity .2s;
+.card.matched .card-front{
+  background:var(--rose-d);border-color:var(--rose);
+  animation:matchPop .35s ease;
 }
+@keyframes matchPop{
+  0%{transform:rotateY(180deg) scale(1)}
+  50%{transform:rotateY(180deg) scale(1.1)}
+  100%{transform:rotateY(180deg) scale(1)}
+}
+
+.btn{padding:12px 32px;border-radius:var(--rs);border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .2s;}
 .btn-rose{background:var(--rose);color:#fff;}
 .btn-rose:hover{opacity:.82;}
 
-/* WIN */
 .win-overlay{
-  position:fixed;inset:0;background:rgba(13,13,15,0.88);backdrop-filter:blur(6px);
-  display:none;align-items:center;justify-content:center;z-index:100;
-  animation:fadeIn .3s ease;
+  position:fixed;inset:0;background:rgba(13,13,15,0.88);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:100;animation:fadeIn .3s ease;
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .win-inner{
   background:var(--ink2);border:0.5px solid var(--border-h);
-  border-radius:14px;padding:36px 32px;text-align:center;max-width:300px;width:90%;
+  border-radius:16px;padding:40px 36px;text-align:center;max-width:340px;width:90%;
 }
-.win-emoji{font-size:44px;margin-bottom:14px;display:block;}
-.win-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;margin-bottom:8px;}
-.win-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.win-emoji{font-size:48px;margin-bottom:16px;display:block;}
+.win-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;margin-bottom:10px;}
+.win-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.7;}
+.win-btn{
+  width:100%;padding:14px;border-radius:var(--rs);border:none;
+  background:var(--rose);color:#fff;font-family:'Outfit',sans-serif;
+  font-size:14px;font-weight:500;cursor:pointer;transition:opacity .2s;
+}
+.win-btn:hover{opacity:.82;}
+
+@media(max-width:480px){
+  .grid.easy{max-width:320px;}
+  .grid.medium{max-width:360px;}
+  .grid.hard{max-width:420px;}
+  .grid.easy .card-front{font-size:2rem;}
+  .grid.medium .card-front{font-size:1.8rem;}
+  .grid.hard .card-front{font-size:1.3rem;}
+  .grid.hard{gap:8px;}
+}
 </style>
 </head>
 <body>
@@ -131,100 +140,103 @@ body{
 <div class="stats">
   <div class="stat"><div class="stat-num" id="moves">0</div><div class="stat-lbl">Moves</div></div>
   <div class="stat"><div class="stat-num" id="timer">0:00</div><div class="stat-lbl">Time</div></div>
-  <div class="stat"><div class="stat-num" id="pairs">0</div><div class="stat-lbl">Pairs</div></div>
+  <div class="stat"><div class="stat-num" id="pairsFound">0</div><div class="stat-lbl">Pairs</div></div>
 </div>
 
 <div class="diff-row">
-  <button class="diff-btn active" onclick="setDiff('easy',this)">Easy (8)</button>
-  <button class="diff-btn" onclick="setDiff('medium',this)">Medium (12)</button>
-  <button class="diff-btn" onclick="setDiff('hard',this)">Hard (18)</button>
+  <button class="diff-btn active" onclick="setDiff('easy',this)">Easy — 8 pairs</button>
+  <button class="diff-btn" onclick="setDiff('medium',this)">Medium — 12 pairs</button>
+  <button class="diff-btn" onclick="setDiff('hard',this)">Hard — 18 pairs</button>
 </div>
 
-<div class="grid easy" id="grid"></div>
+<div class="grid-wrap">
+  <div class="grid easy" id="grid"></div>
+</div>
+
 <button class="btn btn-rose" onclick="initGame()">New game</button>
 
 <div class="win-overlay" id="winOverlay">
   <div class="win-inner">
     <span class="win-emoji">🎉</span>
-    <p class="win-title">Matched!</p>
-    <p class="win-sub" id="winSub">All pairs found.</p>
-    <button class="btn btn-rose" onclick="initGame();document.getElementById('winOverlay').style.display='none'">Play again →</button>
+    <p class="win-title">All matched!</p>
+    <p class="win-sub" id="winSub">Well done.</p>
+    <button class="win-btn" onclick="initGame();document.getElementById('winOverlay').style.display='none'">Play again →</button>
   </div>
 </div>
 
 <script>
-const EMOJIS = ['🌊','🦋','🌙','⚡','🍀','🔮','🌺','🦚','🎯','🌈','🦁','🔥','🍄','🧩','🎸','🌵','🦊','🐬'];
+const EMOJIS=['🌊','🦋','🌙','⚡','🍀','🔮','🌺','🦚','🎯','🌈','🦁','🔥','🍄','🧩','🎸','🌵','🦊','🐬'];
+const SIZES={easy:8,medium:12,hard:18};
 
-let diff = 'easy', pairs, flipped = [], matched = 0, moves = 0, timerInterval, seconds;
+let diff='easy',flipped=[],matched=0,moves=0,timerInterval,seconds=0,busy=false;
 
-const SIZES = { easy: 8, medium: 12, hard: 18 };
-
-function setDiff(d, btn) {
-  diff = d;
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+function setDiff(d,btn){
+  diff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const g = document.getElementById('grid');
-  g.className = 'grid ' + d;
   initGame();
 }
 
-function initGame() {
+function initGame(){
   clearInterval(timerInterval);
-  matched = 0; moves = 0; flipped = []; seconds = 0;
-  document.getElementById('moves').textContent = '0';
-  document.getElementById('timer').textContent = '0:00';
-  document.getElementById('pairs').textContent = '0';
+  matched=0;moves=0;flipped=[];seconds=0;busy=false;
+  document.getElementById('moves').textContent='0';
+  document.getElementById('timer').textContent='0:00';
+  document.getElementById('pairsFound').textContent='0';
+  document.getElementById('winOverlay').style.display='none';
 
-  const count = SIZES[diff];
-  const pool = EMOJIS.slice(0, count);
-  const cards = [...pool, ...pool].sort(() => Math.random() - 0.5);
+  const count=SIZES[diff];
+  const cards=[...EMOJIS.slice(0,count),...EMOJIS.slice(0,count)].sort(()=>Math.random()-.5);
 
-  const g = document.getElementById('grid');
-  g.innerHTML = '';
-  cards.forEach((emoji, i) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.emoji = emoji;
-    card.dataset.idx = i;
-    card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
-    card.onclick = () => flip(card);
+  const g=document.getElementById('grid');
+  g.className='grid '+diff;
+  g.innerHTML='';
+
+  cards.forEach(emoji=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.dataset.emoji=emoji;
+    card.innerHTML=`<div class="card-inner"><div class="card-face card-back">?</div><div class="card-face card-front">${emoji}</div></div>`;
+    card.addEventListener('click',()=>flip(card));
     g.appendChild(card);
   });
 
-  timerInterval = setInterval(() => {
+  timerInterval=setInterval(()=>{
     seconds++;
-    const m = Math.floor(seconds / 60), s = seconds % 60;
-    document.getElementById('timer').textContent = m + ':' + String(s).padStart(2,'0');
-  }, 1000);
+    const m=Math.floor(seconds/60),s=seconds%60;
+    document.getElementById('timer').textContent=m+':'+String(s).padStart(2,'0');
+  },1000);
 }
 
-function flip(card) {
-  if (card.classList.contains('flipped') || card.classList.contains('matched') || flipped.length === 2) return;
+function flip(card){
+  if(busy||card.classList.contains('flipped')||card.classList.contains('matched')||flipped.length===2)return;
   card.classList.add('flipped');
   flipped.push(card);
 
-  if (flipped.length === 2) {
+  if(flipped.length===2){
     moves++;
-    document.getElementById('moves').textContent = moves;
+    document.getElementById('moves').textContent=moves;
+    busy=true;
 
-    if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
-      flipped.forEach(c => c.classList.add('matched'));
+    if(flipped[0].dataset.emoji===flipped[1].dataset.emoji){
+      flipped.forEach(c=>c.classList.add('matched'));
       matched++;
-      document.getElementById('pairs').textContent = matched;
-      flipped = [];
-      if (matched === SIZES[diff]) {
+      document.getElementById('pairsFound').textContent=matched;
+      flipped=[];busy=false;
+
+      if(matched===SIZES[diff]){
         clearInterval(timerInterval);
-        setTimeout(() => {
-          document.getElementById('winSub').textContent =
+        setTimeout(()=>{
+          document.getElementById('winSub').textContent=
             `${moves} moves · ${document.getElementById('timer').textContent} · All ${matched} pairs found.`;
-          document.getElementById('winOverlay').style.display = 'flex';
-        }, 500);
+          document.getElementById('winOverlay').style.display='flex';
+        },500);
       }
     } else {
-      setTimeout(() => {
-        flipped.forEach(c => c.classList.remove('flipped'));
-        flipped = [];
-      }, 900);
+      setTimeout(()=>{
+        flipped.forEach(c=>c.classList.remove('flipped'));
+        flipped=[];busy=false;
+      },950);
     }
   }
 }
